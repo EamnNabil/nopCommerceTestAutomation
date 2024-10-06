@@ -10,6 +10,7 @@ import org.junit.Assert;
 import pages.*;
 import utils.*;
 
+import java.io.IOException;
 import java.time.Duration;
 
 public class TestClass {
@@ -27,8 +28,15 @@ public class TestClass {
         driver.manage().window().maximize();
     }
 
-    @Test
-    public void testCheckoutProcess() throws InterruptedException {
+    @DataProvider(name = "testData")
+    public Object[][] testData() throws IOException {
+        return TestDataProvider.readExcel("src/test/resources/TestData.xlsx", "Sheet1");
+    }
+
+    @Test(dataProvider = "testData")
+    public void testCheckoutProcess(String firstName, String lastName, String email, String company,
+                                    String country, String state, String city, String address1,
+                                    String address2, String zip, String phone, String fax) throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50)); // Wait for up to 50 seconds
 
         // Initialize page objects
@@ -50,7 +58,7 @@ public class TestClass {
         cartPage.acceptTermsAndProceed();
 
         // Fill billing information
-        checkoutPage.fillBillingInformation("Eman", "Nabil", "e@email.com", "SoftTrend", "220", "1", "Cairo","12345", "123-222", "11234", "123-456-7890", "123-456-7890");
+        checkoutPage.fillBillingInformation(firstName, lastName, email, company, country, state, city, address1, address2, zip, phone, fax);
         Thread.sleep(1000);
 
         // Proceed through the checkout process

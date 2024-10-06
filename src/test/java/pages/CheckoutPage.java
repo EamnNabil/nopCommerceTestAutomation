@@ -15,7 +15,9 @@ public class CheckoutPage {
     }
 
     // Method to fill billing information
-    public void fillBillingInformation(String firstName, String lastName, String email, String company, String country, String state, String city, String address1, String address2, String zip, String phone, String fax) {
+    public void fillBillingInformation(String firstName, String lastName, String email, String company, String country,
+                                       String state, String city, String address1, String address2, String zip,
+                                       String phone, String fax) {
         getFirstNameInput().sendKeys(firstName);
         getLastNameInput().sendKeys(lastName);
         getEmailInput().sendKeys(email);
