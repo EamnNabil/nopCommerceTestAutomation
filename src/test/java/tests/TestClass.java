@@ -15,6 +15,7 @@ import java.time.Duration;
 public class TestClass {
     private WebDriver driver;
     private BrowserDriverFactory browserFactory;
+    private WebDriverWait wait;
 
     @BeforeClass
     public void setup() {
@@ -25,6 +26,9 @@ public class TestClass {
         // Create WebDriver instance
         driver = browserFactory.createDriver();
         driver.manage().window().maximize();
+
+        // Create Wait instance
+        wait = new WebDriverWait(driver, Duration.ofSeconds(50)); // Wait for up to 50 seconds
     }
 
     @DataProvider(name = "testData")
@@ -32,29 +36,36 @@ public class TestClass {
         return TestDataProvider.readExcel("src/test/resources/TestData.xlsx", "Sheet1");
     }
 
-    @Test(dataProvider = "testData")
-    public void testCheckoutProcess(String firstName, String lastName, String email, String company,
-                                    String country, String state, String city, String address1,
-                                    String address2, String zip, String phone, String fax) throws InterruptedException {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50)); // Wait for up to 50 seconds
-
+    @Test
+    public void tc01_AddProductToCart() throws InterruptedException {
         // Initialize page objects
         ProductPage productPage = new ProductPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-        ThankYouPage thankYouPage = new ThankYouPage(driver);
 
         // Add product to cart and navigate to the cart
         productPage.addProductToCart();
-
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//p[contains(text(), 'The product has been added to your')]")));
 
         productPage.navigateToCart();
 
+        // Verify if the cart page is loaded
         wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe("https://demo.nopcommerce.com/cart")));
+    }
 
-        // Accept terms and proceed
+    @Test(dependsOnMethods = "tc01_AddProductToCart")
+    public void tc02_ProceedToCheckout() throws InterruptedException {
+        // Initialize page objects
+        CartPage cartPage = new CartPage(driver);
+
+        // Accept terms and proceed to checkout
         cartPage.acceptTermsAndProceed();
+    }
+
+    @Test(dependsOnMethods = "tc02_ProceedToCheckout", dataProvider = "testData")
+    public void tc03_EnterBillingAndShippingInfo(String firstName, String lastName, String email, String company,
+                                                String country, String state, String city, String address1,
+                                                String address2, String zip, String phone, String fax) throws InterruptedException {
+        // Initialize page objects
+        CheckoutPage checkoutPage = new CheckoutPage(driver);
 
         // Fill billing information
         checkoutPage.fillBillingInformation(firstName, lastName, email, company, country, state, city, address1, address2, zip, phone, fax);
@@ -66,7 +77,15 @@ public class TestClass {
 
         checkoutPage.proceedToPayment();
         Thread.sleep(1000);
+    }
 
+    @Test(dependsOnMethods = "tc03_EnterBillingAndShippingInfo")
+    public void tc04_testCompleteOrder() throws InterruptedException {
+        // Initialize page objects
+        CheckoutPage checkoutPage = new CheckoutPage(driver);
+        ThankYouPage thankYouPage = new ThankYouPage(driver);
+
+        // Confirm the order
         checkoutPage.confirmOrder();
         Thread.sleep(1000);
 
