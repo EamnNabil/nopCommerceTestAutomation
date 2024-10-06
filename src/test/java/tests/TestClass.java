@@ -2,11 +2,10 @@ package tests;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.annotations.*;
-import org.junit.Assert;
 import pages.*;
 import utils.*;
 
@@ -72,7 +71,7 @@ public class TestClass {
         Thread.sleep(1000);
 
         // Verify Thank You message
-        Assert.assertTrue("Thank you message not displayed!", thankYouPage.isThankYouMessageDisplayed());
+        Assert.assertTrue(thankYouPage.isThankYouMessageDisplayed(), "Thank you message not displayed!");
     }
 
     @AfterClass
