@@ -15,6 +15,8 @@ public class ProductPage {
 
     // Method to add a product to the cart
     public void addProductToCart() {
+        driver.get("https://demo.nopcommerce.com/desktops");
+
         JavascriptExecutor js = (JavascriptExecutor) driver;
         WebElement addToCartButton = getAddToCartButton();
 

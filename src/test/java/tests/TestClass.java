@@ -5,16 +5,27 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import org.junit.Assert;
 import pages.*;
+import utils.*;
 
 import java.time.Duration;
 
 public class TestClass {
-    WebDriver driver;
+    private WebDriver driver;
+    private BrowserDriverFactory browserFactory;
+
+    @BeforeClass
+    public void setup() {
+        String browser = System.getProperty("browser", "chrome"); // Default to chrome if no parameter
+        BrowserDriverFactory.BrowserType type = BrowserDriverFactory.BrowserType.valueOf(browser.toUpperCase());
+        browserFactory = new BrowserDriverFactory(type);
+
+        // Create WebDriver instance
+        driver = browserFactory.createDriver();
+        driver.manage().window().maximize();
+    }
 
     @Test
     public void testCheckoutProcess() throws InterruptedException {
@@ -56,16 +67,8 @@ public class TestClass {
         Assert.assertTrue("Thank you message not displayed!", thankYouPage.isThankYouMessageDisplayed());
     }
 
-    @BeforeTest
-    public void OpenBrowser() {
-        System.getProperty("webdriver.chrome.driver", ".\\drivers\\chromedriver.exe");
-        driver = new ChromeDriver();
-        driver.get("https://demo.nopcommerce.com/desktops");
-
-    }
-
     @AfterClass
     public void CloseBrowser() {
-        driver.close();
+        browserFactory.quitDriver();
     }
 }
